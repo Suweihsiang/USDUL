@@ -31,7 +31,7 @@ class QmyMainWindow(QMainWindow):                                   #this class 
         self.ui.date_Start.setDate(current_date.addYears(-2))
         self.ui.date_End.setDate(current_date)
 
-        self.draw()
+        self.load_data()
         
         
     
@@ -52,6 +52,34 @@ class QmyMainWindow(QMainWindow):                                   #this class 
 
 
 #==========================================自訂函數========================================================================
+
+    def load_data(self):
+        conn = sqlite3.connect('USDTWD.db')
+        self.usdtwd = pd.read_sql('SELECT * FROM USDTWD',conn).set_index('Date')
+        self.usdtwd.index = self.usdtwd.index.astype("string")
+        self.usdtwd.sort_index(ascending=True,inplace=True)
+
+        self.msci = pd.read_csv('MSCI.csv').set_index('Date')
+        self.msci.index = self.msci.index.astype("string")
+        self.msci.sort_index(ascending=True,inplace=True)
+
+        self.morgan = pd.read_csv('Morgan_bond.csv').set_index('Date')
+        self.morgan.index = self.morgan.index.astype("string")
+        self.morgan.sort_index(ascending=True,inplace=True)
+
+        conn = sqlite3.connect('US10Y.db')
+        self.us10y = pd.read_sql('SELECT * FROM US10Y',conn).set_index('Date')
+        self.us10y.index = self.us10y.index.astype("string")
+        self.us10y.sort_index(ascending=True,inplace=True)
+
+        conn = sqlite3.connect('USStock_index.db')
+        self.usstock = pd.read_sql('SELECT Date, close_dj,close_sp5,close_nas,close_sox FROM Stock_index',conn).set_index('Date')
+        self.usstock.index = self.usstock.index.astype("string")
+        self.usstock.sort_index(ascending=True,inplace=True)
+
+        self.draw()
+
+
     def draw(self):
         start_date = self.ui.date_Start.date().toString("yyyyMMdd")
         end_date = self.ui.date_End.date().toString("yyyyMMdd")
@@ -63,11 +91,8 @@ class QmyMainWindow(QMainWindow):                                   #this class 
                       plot_bgcolor = 'black', 
                       paper_bgcolor = 'black')
 
-        conn = sqlite3.connect('USDTWD.db')
-        data = pd.read_sql('SELECT * FROM USDTWD',conn).set_index('Date')
-        data.index = data.index.astype("string")
-        data.sort_index(ascending=True,inplace=True)
-        data = data[(data.index >= start_date) & (data.index <= end_date)]
+        
+        data = self.usdtwd[(self.usdtwd.index >= start_date) & (self.usdtwd.index <= end_date)]
         date = pd.to_datetime(data.index)
         fig = go.Figure()
         fig.add_trace(go.Scatter(x = date, y = data['USDTWD'], line_color = "cyan",name = 'USDTWD',hovertemplate = '%{x:%Y%m%d},%{y}'))
@@ -79,10 +104,7 @@ class QmyMainWindow(QMainWindow):                                   #this class 
         view.page().setBackgroundColor(QColor(0,0,0))
         self.ui.gridLayout.addWidget(view,0,0)
 
-        data = pd.read_csv('MSCI.csv').set_index('Date')
-        data.index = data.index.astype("string")
-        data.sort_index(ascending=True,inplace=True)
-        data = data[(data.index >= start_date) & (data.index <= end_date)]
+        data = self.msci[(self.msci.index >= start_date) & (self.msci.index <= end_date)]
         date = pd.to_datetime(data.index)
         fig = go.Figure()
         fig.add_trace(go.Scatter(x = date,y = data['Price'], line_color = 'deepskyblue',name = 'MSCI',hovertemplate = '%{x:%Y%m%d},%{y:d}'))
@@ -94,10 +116,7 @@ class QmyMainWindow(QMainWindow):                                   #this class 
         view.page().setBackgroundColor(QColor(0,0,0))
         self.ui.gridLayout.addWidget(view,0,1)
 
-        data = pd.read_csv('Morgan_bond.csv').set_index('Date')
-        data.index = data.index.astype("string")
-        data.sort_index(ascending=True,inplace=True)
-        data = data[(data.index >= start_date) & (data.index <= end_date)]
+        data = self.morgan[(self.morgan.index >= start_date) & (self.morgan.index <= end_date)]
         date = pd.to_datetime(data.index)
         fig = go.Figure()
         fig.add_trace(go.Scatter(x = date, y = data['Price'], line_color = 'lightskyblue',name = 'Morgan Bond',hovertemplate = '%{x:%Y%m%d},%{y}'))
@@ -109,11 +128,7 @@ class QmyMainWindow(QMainWindow):                                   #this class 
         view.page().setBackgroundColor(QColor(0,0,0))
         self.ui.gridLayout.addWidget(view,0,2)
         
-        conn = sqlite3.connect('US10Y.db')
-        data = pd.read_sql('SELECT * FROM US10Y',conn).set_index('Date')
-        data.index = data.index.astype("string")
-        data.sort_index(ascending=True,inplace=True)
-        data = data[(data.index >= start_date) & (data.index <= end_date)]
+        data = self.us10y[(self.us10y.index >= start_date) & (self.us10y.index <= end_date)]
         date = pd.to_datetime(data.index)
         fig = go.Figure()
         fig.add_trace(go.Scatter(x = date, y = data['US10Y_Treasury_Yield'],name = 'US10Y',hovertemplate = '%{x:%Y%m%d},%{y}'))
@@ -125,12 +140,7 @@ class QmyMainWindow(QMainWindow):                                   #this class 
         view.page().setBackgroundColor(QColor(0,0,0))
         self.ui.gridLayout.addWidget(view,1,0)
 
-
-        conn = sqlite3.connect('USStock_index.db')
-        data = pd.read_sql('SELECT * FROM Stock_index',conn).set_index('Date')
-        data.index = data.index.astype("string")
-        data.sort_index(ascending=True,inplace=True)
-        data = data[(data.index >= start_date) & (data.index <= end_date)]
+        data = self.usstock[(self.usstock.index >= start_date) & (self.usstock.index <= end_date)]
         date = pd.to_datetime(data.index)
         fig = go.Figure()
         fig.add_trace(go.Scatter(x = date, y = data['close_dj'], line_color = 'lightcoral', name = 'Dow Jone'))
