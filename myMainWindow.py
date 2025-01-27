@@ -144,11 +144,11 @@ class QmyMainWindow(QMainWindow):                                   #this class 
         date = pd.to_datetime(data.index)
         fig = go.Figure()
         fig.add_trace(go.Scatter(x = date, y = data['close_dj'], line_color = 'lightcoral', name = 'Dow Jone'))
-        fig.add_trace(go.Scatter(x = date, y = data['close_nas'], line_color = 'gold', name = 'NAS'))
+        fig.add_trace(go.Scatter(x = date, y = data['close_nas'], line_color = 'gold', name = 'NASDAQ'))
         fig.add_trace(go.Scatter(x = date, y = data['close_sp5'], line_color = 'greenyellow', name = 'SP500', yaxis = 'y2'))
         fig.add_trace(go.Scatter(x = date, y = data['close_sox'], line_color = 'lightyellow', name = 'SOX', yaxis = 'y2'))
         fig.update_layout(title = 'US Stock Index')
-        fig.update_layout(yaxis = dict(title = dict(text = 'Dow Jone/Nas Index')))
+        fig.update_layout(yaxis = dict(title = dict(text = 'Dow Jone/NASDAQ Index')))
         fig.update_layout(yaxis2 = dict(title = dict(text = 'SP500/SOX Index'), anchor = 'x', overlaying = 'y', side = 'right', showgrid = False))
         fig.update_layout(legend = dict(x = 0.01, y = 0.99))
         fig.update_layout(layout)
@@ -157,10 +157,3 @@ class QmyMainWindow(QMainWindow):                                   #this class 
         view.setHtml(html)
         view.page().setBackgroundColor(QColor(0,0,0))
         self.ui.gridLayout.addWidget(view,1,1)
-        
-#==========================================表單測試程式=====================================================================
-if __name__=="__main__":
-    app=QApplication(sys.argv)
-    form=QmyMainWindow()
-    form.showMaximized()
-    sys.exit(app.exec_())
