@@ -59,7 +59,7 @@ class QmyMainWindow(QMainWindow):                                   #this class 
         self.usdtwd.index = self.usdtwd.index.astype("string")
         self.usdtwd.sort_index(ascending=True,inplace=True)
 
-        self.msci = pd.read_csv('MSCI.csv').set_index('Date')
+        self.msci = pd.read_csv('MSCI.csv',thousands=',').set_index('Date')
         self.msci.index = self.msci.index.astype("string")
         self.msci.sort_index(ascending=True,inplace=True)
 
@@ -81,8 +81,8 @@ class QmyMainWindow(QMainWindow):                                   #this class 
 
 
     def draw(self):
-        start_date = self.ui.date_Start.date().toString("yyyyMMdd")
-        end_date = self.ui.date_End.date().toString("yyyyMMdd")
+        start_date = self.ui.date_Start.date().toString("yyyy-MM-dd")
+        end_date = self.ui.date_End.date().toString("yyyy-MM-dd")
 
         layout = dict(margin = dict(l = 5, r = 5, b = 10, t = 30),
                       xaxis = dict(title = dict(text = 'Date'), linecolor = 'white', showgrid = False),
@@ -127,7 +127,7 @@ class QmyMainWindow(QMainWindow):                                   #this class 
         view.setHtml(html)
         view.page().setBackgroundColor(QColor(0,0,0))
         self.ui.gridLayout.addWidget(view,0,2)
-        
+
         data = self.us10y[(self.us10y.index >= start_date) & (self.us10y.index <= end_date)]
         date = pd.to_datetime(data.index)
         fig = go.Figure()
